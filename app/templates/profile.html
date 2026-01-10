@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 p-4">
+            <h2 class="fw-bold mb-4 text-center">Your Profile</h2>
+            <div class="row text-center mb-4">
+                <div class="col-6 border-end">
+                    <h5 class="text-muted small fw-bold">USERNAME</h5>
+                    <p class="h5">{{ current_user.username }}</p>
+                </div>
+                <div class="col-6">
+                    <h5 class="text-muted small fw-bold">EMAIL</h5>
+                    <p class="h5">{{ current_user.email }}</p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger px-5">Log Out</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
