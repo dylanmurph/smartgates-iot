@@ -28,6 +28,7 @@ class User(UserMixin, db.Model):
 
     access_links = db.relationship('UserDeviceAccess', back_populates='user', cascade="all, delete-orphan")
     owned_devices = db.relationship('Device', back_populates='owner', lazy='dynamic')
+    invites_sent = db.relationship('Invitation', back_populates='inviter')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -52,6 +53,7 @@ class Device(db.Model):
     owner = db.relationship('User', back_populates='owned_devices')
     access_links = db.relationship('UserDeviceAccess', back_populates='device', cascade="all, delete-orphan")
     logs = db.relationship('EventLog', back_populates='device', lazy='dynamic')
+    invites = db.relationship('Invitation', back_populates='device', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Device {self.name}>'
@@ -68,6 +70,19 @@ class EventLog(db.Model):
 
     def __repr__(self):
         return f'<Log {self.event_type}>'
+    
+# --- INVITATIONS ---
+class Invitation(db.Model):
+    __tablename__ = 'invitation'
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    inviter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    invitee_email = db.Column(db.String(120), index=True)
+    status = db.Column(db.String(20), default='pending')
+    sent_at = db.Column(db.DateTime, default=get_utc_now)
+
+    device = db.relationship('Device', back_populates='invites')
+    inviter = db.relationship('User', back_populates='invites_sent')
     
 from app import login
 @login.user_loader
