@@ -1,57 +1,68 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="mb-4">
-    <h2 class="fw-bold">System Dashboard</h2>
-    <p class="text-muted">Real-time status of your connected gates.</p>
+  <h2 class="fw-bold">System Dashboard</h2>
+  <p class="text-muted">Real-time status of your connected gates.</p>
 </div>
 
 <div class="row">
-    {% for device in devices %}
-    <div class="col-md-6 col-lg-4">
-        <div class="card p-3 shadow-sm mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h5 class="fw-bold">{{ device.name }}</h5>
-                    <span class="badge {{ 'bg-success' if device.is_online else 'bg-secondary' }} rounded-pill">
-                        {{ 'Online' if device.is_online else 'Offline' }}
-                    </span>
-                </div>
-                <p class="text-muted small font-monospace mb-4">{{ device.unique_id }}</p>
-                <div class="d-grid">
-                    <button id="gate-toggle-btn" class="btn btn-dark btn-lg">Toggle Gate</button>
-                </div>
-            </div>
+  {% for device in devices %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card p-3 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h5 class="fw-bold">{{ device.name }}</h5>
+          <span
+            class="badge {{ 'bg-success' if device.is_online else 'bg-secondary' }} rounded-pill"
+          >
+            {{ 'Online' if device.is_online else 'Offline' }}
+          </span>
         </div>
+        <p class="text-muted small font-monospace mb-4">
+          {{ device.unique_id }}
+        </p>
+        <div class="d-grid">
+          <button
+            class="btn btn-dark btn-lg gate-toggle-btn"
+            data-device-id="{{ device.id }}"
+          >
+            Toggle Gate
+          </button>
+        </div>
+      </div>
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 </div>
 
 <div class="card shadow-sm border-0">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold text-dark">Recent Activity</h5>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light small text-muted">
-                <tr>
-                    <th>TIME</th>
-                    <th>DEVICE</th>
-                    <th>EVENT</th>
-                    <th>DETAILS</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in logs %}
-                <tr>
-                    <td>{{ log.timestamp.strftime('%H:%M') }}</td>
-                    <td class="fw-bold">{{ log.device.name }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ log.event_type }}</span></td>
-                    <td class="small">{{ log.description }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+  <div class="card-header bg-white py-3">
+    <h5 class="mb-0 fw-bold text-dark">Recent Activity</h5>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light small text-muted">
+        <tr>
+          <th>TIME</th>
+          <th>DEVICE</th>
+          <th>EVENT</th>
+          <th>DETAILS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.timestamp.strftime('%H:%M') }}</td>
+          <td class="fw-bold">{{ log.device.name }}</td>
+          <td>
+            <span class="badge bg-light text-dark border"
+              >{{ log.event_type }}</span
+            >
+          </td>
+          <td class="small">{{ log.description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

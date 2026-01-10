@@ -43,12 +43,12 @@
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.manage_devices') }}"
+              <a class="nav-link" href="{{ url_for('devices.list_devices') }}"
                 >Devices</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.invites') }}"
+              <a class="nav-link" href="{{ url_for('invites.manage_invites') }}"
                 >Invites</a
               >
             </li>
@@ -60,16 +60,16 @@
             <li class="nav-item">
               <a
                 class="nav-link text-danger"
-                href="{{ url_for('main.logout') }}"
+                href="{{ url_for('auth.logout') }}"
                 >Logout</a
               >
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.register') }}"
+              <a class="nav-link" href="{{ url_for('auth.register') }}"
                 >Register</a
               >
             </li>

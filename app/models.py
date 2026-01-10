@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import db, login
 
 def get_utc_now():
     return datetime.now(timezone.utc)
@@ -84,7 +84,6 @@ class Invitation(db.Model):
     device = db.relationship('Device', back_populates='invites')
     inviter = db.relationship('User', back_populates='invites_sent')
     
-from app import login
 @login.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
