@@ -8,10 +8,11 @@ pnconfig.publish_key = os.environ.get("PUBNUB_PUBLISH_KEY")
 pnconfig.user_id = os.environ.get("PUBNUB_USER_ID", "aws_server")
 pubnub = PubNub(pnconfig)
 
+
 def trigger_gate(device_id):
     try:
-        channel_name = f"gate_{device_id}" 
+        channel_name = str(device_id)
         pubnub.publish().channel(channel_name).message("OPEN_GATE").sync()
-        return True, f"Signal Sent to {channel_name}"
+        return True, f"Signal Sent to channel {channel_name}"
     except Exception as e:
         return False, str(e)
