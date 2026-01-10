@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0 fw-bold">Create Account</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate id="registerForm">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label fw-bold") }}
+                        {{ form.username(class="form-control " + ("is-invalid" if form.username.errors else ""), placeholder="Choose a username") }}
+                        {% for error in form.username.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label fw-bold") }}
+                        {{ form.email(class="form-control " + ("is-invalid" if form.email.errors else ""), placeholder="name@example.com") }}
+                        {% for error in form.email.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label fw-bold") }}
+                        {{ form.password(class="form-control " + ("is-invalid" if form.password.errors else ""), id="pw1", placeholder="Create password") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.check_password.label(class="form-label fw-bold") }}
+                        {{ form.check_password(class="form-control " + ("is-invalid" if form.check_password.errors else ""), id="pw2", placeholder="Repeat password") }}
+                        <div id="live-feedback" class="invalid-feedback">Passwords do not match</div>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" id="submitBtn" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-white border-0 pb-4">
+                <small class="text-muted">Already registered? <a href="{{ url_for('main.login') }}" class="text-decoration-none">Sign In</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const pw1 = document.getElementById('pw1');
+    const pw2 = document.getElementById('pw2');
+    const feedback = document.getElementById('live-feedback');
+    const btn = document.getElementById('submitBtn');
+
+    function handlePasswordValidation() {
+        pw1.classList.remove('is-invalid');
+        if (pw2.value.length > 0) {
+            if (pw1.value === pw2.value) {
+                pw2.classList.remove('is-invalid');
+                pw2.classList.add('is-valid');
+                feedback.style.display = 'none';
+            } else {
+                pw2.classList.remove('is-valid');
+                pw2.classList.add('is-invalid');
+                feedback.style.display = 'block';
+            }
+        } else {
+            pw2.classList.remove('is-invalid', 'is-valid');
+            feedback.style.display = 'none';
+        }
+    }
+    pw1.addEventListener('input', handlePasswordValidation);
+    pw2.addEventListener('input', handlePasswordValidation);
+</script>
+{% endblock %}
