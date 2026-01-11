@@ -32,6 +32,6 @@ class AddDeviceForm(FlaskForm):
     device_name = StringField('Device Name', validators=[DataRequired()])
     submit = SubmitField('Add Device')
 
-class InviteUserForm(FlaskForm):
-    email = StringField('User Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Send Invitation')
+class EditDeviceForm(FlaskForm):
+    device_name = StringField('New Device Name', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')
