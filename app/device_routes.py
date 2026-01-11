@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import Device, User, UserDeviceAccess
 from app.forms import AddDeviceForm, EditDeviceForm, AddGuestForm
 
 bp = Blueprint("devices", __name__)
-
 
 @bp.route("/devices")
 @login_required
@@ -14,6 +13,7 @@ def list_devices():
     
     all_accessible = current_user.get_accessible_devices()
     shared_devices = [d for d in all_accessible if d.owner_id != current_user.id]
+
     device = owned_devices[0] if owned_devices else (shared_devices[0] if shared_devices else None)
     
     add_form = AddDeviceForm()
@@ -31,6 +31,46 @@ def list_devices():
         guest_form=guest_form,
     )
 
+@bp.route('/devices/add', methods=['POST'])
+@login_required
+def add_device():
+    form = AddDeviceForm()
+    if form.validate_on_submit():
+        dev = Device(name=form.device_name.data, owner=current_user)
+        db.session.add(dev)
+        db.session.commit()
+        flash(f'Device "{dev.name}" added successfully!', 'success')
+    else:
+        flash('Error adding device.', 'danger')
+    return redirect(url_for('devices.list_devices'))
+
+@bp.route('/devices/<int:device_id>/edit', methods=['POST'])
+@login_required
+def edit_device(device_id):
+    device = Device.query.get_or_404(device_id)
+    if device.owner != current_user:
+        flash('You do not have permission to edit this device.', 'danger')
+        return redirect(url_for('devices.list_devices'))
+    
+    form = EditDeviceForm()
+    if form.validate_on_submit():
+        device.name = form.device_name.data
+        db.session.commit()
+        flash('Device renamed successfully.', 'success')
+    return redirect(url_for('devices.list_devices'))
+
+@bp.route('/devices/<int:device_id>/delete', methods=['POST'])
+@login_required
+def delete_device(device_id):
+    device = Device.query.get_or_404(device_id)
+    if device.owner != current_user:
+        flash('You do not have permission to delete this device.', 'danger')
+        return redirect(url_for('devices.list_devices'))
+
+    db.session.delete(device)
+    db.session.commit()
+    flash('Device deleted.', 'success')
+    return redirect(url_for('devices.list_devices'))
 
 @bp.route("/devices/<int:device_id>/add-guest", methods=["POST"])
 @login_required
