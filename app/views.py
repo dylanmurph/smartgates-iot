@@ -29,7 +29,7 @@ def dashboard():
 @bp.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', title='User Profile')
+    return render_template('profile.html', title='User Profile', device=None)
 
 @bp.route('/logs/<int:device_id>')
 @login_required

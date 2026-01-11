@@ -42,7 +42,7 @@
                 >Dashboard</a
               >
             </li>
-            {% if device %}
+            {% if device is not none and device.id %}
             <li class="nav-item">
               <a
                 class="nav-link"
