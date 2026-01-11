@@ -5,7 +5,6 @@ from app import create_app, db
 from app.models import Device, EventLog
 from app.hardware_service import pubnub
 
-# Initialize the Flask App
 app = create_app()
 
 class DatabaseListener(SubscribeCallback):
@@ -17,8 +16,17 @@ class DatabaseListener(SubscribeCallback):
         data = message.message
         channel_name = message.channel
 
-        # We open the app context INSIDE the message function 
-        # to ensure every database write has a fresh connection.
+        description_map = {
+            "MOTION_DETECTED":     "Motion detected at gate - Panel open",
+            "TAMPER_ALARM":        "Tamper - Device lid open",
+            "TAMPER_CLEARED":      "Tamper - Device lid closed",
+            "GATE_OPEN":           "Gates are open",
+            "GATE_CLOSED":         "Gates are closed",
+            "GATE_CYCLE_COMPLETE": "Success - Gate triggered successfully"
+        }
+
+        final_description = description_map.get(data, data)
+
         with app.app_context():
             try:
                 device_id = int(channel_name)
@@ -38,13 +46,13 @@ class DatabaseListener(SubscribeCallback):
                     # --- CREATE EVENT LOG ---
                     new_log = EventLog(
                         event_type=data,
-                        description=f"Hardware Event: {data}",
+                        description=final_description,
                         device_id=device.id,
                     )
 
                     db.session.add(new_log)
                     db.session.commit()
-                    print(f"Logged {data} and updated status for Device ID: {device_id}")
+                    print(f"Logged {final_description} and updated status for Device ID: {device_id}")
                 else:
                     print(f"Device with ID {device_id} not found in database.")
 
