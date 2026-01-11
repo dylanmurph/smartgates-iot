@@ -1,0 +1,4 @@
+gpiozero==2.0.1
+pubnub==10.5.0
+python-dotenv==1.2.1
+rpi-lgpio==0.6

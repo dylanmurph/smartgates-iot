@@ -44,8 +44,9 @@ def view_logs(device_id):
     device = Device.query.get_or_404(device_id)
     
     if device not in current_user.get_viewable_devices():
-        flash("You do not have access to this device's logs.")
+        flash("Access Denied.")
         return redirect(url_for('main.dashboard'))
 
-    logs = device.logs.order_by(EventLog.timestamp.desc()).limit(20).all()
+    logs = device.logs.order_by(EventLog.timestamp.desc()).all()
+    
     return render_template('logs.html', device=device, logs=logs)

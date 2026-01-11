@@ -2,14 +2,22 @@
 <tr>
     <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
     <td>
-        {% if 'ALARM' in log.event_type %}
-            <span class="badge bg-danger">{{ log.event_type }}</span>
-        {% elif 'GATE' in log.event_type %}
-            <span class="badge bg-primary">{{ log.event_type }}</span>
+        {% if log.event_type == 'MANUAL_OPEN' %}
+            <span class="badge bg-primary">MANUAL</span>
+        {% elif 'OPEN' in log.event_type %}
+            <span class="badge bg-success">OPEN</span>
+        {% elif 'CLOSE' in log.event_type %}
+            <span class="badge bg-secondary">CLOSED</span>
+        {% elif 'TAMPER' in log.event_type %}
+            <span class="badge bg-danger">TAMPER</span>
         {% else %}
-            <span class="badge bg-secondary">{{ log.event_type }}</span>
+            <span class="badge bg-info">{{ log.event_type }}</span>
         {% endif %}
     </td>
     <td>{{ log.description }}</td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="3" class="text-center text-muted py-3">No logs found for this device.</td>
 </tr>
 {% endfor %}
