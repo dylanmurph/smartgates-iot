@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h1 class="mb-4">Gate Control</h1>
+
+    {% if device %}
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-4">
+            {% include 'partials/_gate_status.html' %}
+        </div>
+        <div class="col-md-4">
+            {% include 'partials/_tamper_status.html' %}
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <button class="btn btn-primary btn-lg w-100 py-3 shadow" 
+                    hx-post="{{ url_for('hardware.open_gate', device_id=device.id) }}"
+                    hx-swap="none"
+                    onclick="this.disabled=true; setTimeout(()=>this.disabled=false, 5000)">
+                <i class="fas fa-key mr-2"></i> OPEN GATE
+            </button>
+            <p class="text-muted mt-3">Click to pulse the gate relay for 5 seconds.</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">No active device found. Please add a device or ask for an invite.</div>
+    {% endif %}
+</div>
+{% endblock %}

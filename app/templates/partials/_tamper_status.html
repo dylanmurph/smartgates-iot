@@ -1,0 +1,25 @@
+<div id="tamper-status-card" 
+     hx-get="{{ url_for('hardware.tamper_status', device_id=device.id) }}" 
+     hx-trigger="every 2s" 
+     hx-swap="outerHTML">
+    
+    <div class="card text-center shadow-sm {% if device.is_tamper_active %}border-danger{% endif %}">
+        <div class="card-body">
+            <h5 class="card-title text-muted">Security System</h5>
+            
+            {% if device.is_tamper_active %}
+                <div class="status-icon text-danger mb-2 tamper-glow">
+                    <i class="fas fa-exclamation-triangle fa-4x"></i>
+                </div>
+                <h3 class="text-danger font-weight-bold">TAMPER ALERT</h3>
+                <p class="badge badge-danger">Siren Active</p>
+            {% else %}
+                <div class="status-icon text-info mb-2">
+                    <i class="fas fa-shield-alt fa-4x"></i>
+                </div>
+                <h3 class="text-info font-weight-bold">SECURE</h3>
+                <p class="badge badge-info">Monitoring</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

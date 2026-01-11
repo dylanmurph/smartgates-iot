@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fa-solid fa-user me-2"></i>User Profile</h3>
+            </div>
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <i class="fa-solid fa-user-circle fa-6x text-muted"></i>
+                </div>
+                
+                <h2 class="mb-1">{{ current_user.username }}</h2>
+                <p class="text-muted mb-4">{{ current_user.email }}</p>
+
+                <div class="row justify-content-center mt-4">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush text-start mb-4">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-microchip me-2 text-primary"></i>Owned Devices</span>
+                                <span class="badge bg-primary rounded-pill">{{ current_user.owned_devices.count() }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-key me-2 text-success"></i>Guest Access</span>
+                                <span class="badge bg-success rounded-pill">{{ current_user.access_links.count() }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-calendar me-2 text-info"></i>Joined</span>
+                                <span class="text-muted small">{{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger px-5">
+                    <i class="fa-solid fa-sign-out-alt me-2"></i>Log Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

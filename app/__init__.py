@@ -5,7 +5,7 @@ from config import Config
 
 db = SQLAlchemy()
 login = LoginManager()
-login.login_view = 'main.login'
+login.login_view = 'auth.login'
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -19,7 +19,16 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
 
     from app.hardware_routes import bp as hardware_bp
-    app.register_blueprint(hardware_bp, url_prefix='/api')
+    app.register_blueprint(hardware_bp)
+
+    from app.auth_routes import bp as auth_bp
+    app.register_blueprint(auth_bp)
+
+    from app.device_routes import bp as device_bp
+    app.register_blueprint(device_bp)
+
+    from app.invite_routes import bp as invite_bp
+    app.register_blueprint(invite_bp)
 
     with app.app_context():
         db.create_all()
