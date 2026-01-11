@@ -49,6 +49,8 @@ class Device(db.Model):
     unique_id = db.Column(db.String(64), unique=True)
     is_online = db.Column(db.Boolean, default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    is_gate_open = db.Column(db.Boolean, default=False)
+    is_tamper_active = db.Column(db.Boolean, default=False)
     
     owner = db.relationship('User', back_populates='owned_devices')
     access_links = db.relationship('UserDeviceAccess', back_populates='device', cascade="all, delete-orphan")

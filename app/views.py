@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user, login_required
-from app.models import EventLog
+from app.models import EventLog, Device
 
 bp = Blueprint('main', __name__)
 
@@ -33,3 +33,9 @@ def dashboard():
 @login_required
 def profile():
     return render_template('profile.html', title='User Profile')
+
+@bp.route('/logs/<int:device_id>')
+def view_logs(device_id):
+    device = Device.query.get_or_404(device_id)
+    logs = device.logs.order_by(EventLog.timestamp.desc()).limit(20).all()
+    return render_template('logs.html', device=device, logs=logs)

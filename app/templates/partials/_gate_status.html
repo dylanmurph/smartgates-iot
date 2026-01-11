@@ -1,0 +1,25 @@
+<div id="gate-status-card" 
+     hx-get="{{ url_for('hardware.gate_status', device_id=device.id) }}" 
+     hx-trigger="every 2s" 
+     hx-swap="outerHTML">
+    
+    <div class="card text-center shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title text-muted">Gate Status</h5>
+            
+            {% if device.is_gate_open %}
+                <div class="status-icon text-warning mb-2">
+                    <i class="fas fa-door-open fa-4x"></i>
+                </div>
+                <h3 class="text-warning font-weight-bold">OPEN</h3>
+            {% else %}
+                <div class="status-icon text-success mb-2">
+                    <i class="fas fa-door-closed fa-4x"></i>
+                </div>
+                <h3 class="text-success font-weight-bold">CLOSED</h3>
+            {% endif %}
+            
+            <p class="card-text small text-muted">Last updated: {{ now.strftime('%H:%M:%S') }}</p>
+        </div>
+    </div>
+</div>
