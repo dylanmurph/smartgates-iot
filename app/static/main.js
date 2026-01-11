@@ -56,4 +56,18 @@ const guestModal = document.getElementById('addGuestModal');
         });
     }
 
+const leaveModal = document.getElementById('leaveDeviceModal');
+    if (leaveModal) {
+        leaveModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            const deviceId = button.getAttribute('data-device-id');
+            const deviceName = button.getAttribute('data-device-name');
+            
+            const nameSpan = document.getElementById('leave_device_name_display');
+            if (nameSpan) nameSpan.textContent = deviceName;
+            
+            const form = document.getElementById('leaveDeviceForm');
+            if (form) form.action = `/devices/${deviceId}/leave`;
+        });
+    }
 });

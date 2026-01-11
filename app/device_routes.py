@@ -61,3 +61,22 @@ def add_guest(device_id):
         flash("Invalid email address format.", "danger")
 
     return redirect(url_for("devices.list_devices"))
+
+@bp.route('/devices/<int:device_id>/leave', methods=['POST'])
+@login_required
+def leave_device(device_id):
+    device = Device.query.get_or_404(device_id)
+
+    if device.owner == current_user:
+        return redirect(url_for('devices.list_devices'))
+
+    access_link = UserDeviceAccess.query.filter_by(user_id=current_user.id, device_id=device.id).first()
+    
+    if access_link:
+        db.session.delete(access_link)
+        db.session.commit()
+        flash(f'You have removed "{device.name}" from your account.', 'success')
+    else:
+        flash('You do not have access to this device.', 'info')
+
+    return redirect(url_for('devices.list_devices'))

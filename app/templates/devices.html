@@ -8,26 +8,24 @@
     </button>
 </div>
 
+<h5 class="text-muted border-bottom pb-2 mb-3">My Gates</h5>
 <div class="row">
-    {% for device in current_user.owned_devices %}
+    {% for device in owned_devices %}
     <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm mb-4">
+        <div class="card shadow-sm mb-4 border-primary h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
-                    <h5 class="fw-bold">{{ device.name }}</h5>
+                    <h5 class="fw-bold text-primary">{{ device.name }}</h5>
                     {% if device.is_online %}
                         <span class="badge bg-success">Online</span>
                     {% else %}
                         <span class="badge bg-secondary">Offline</span>
                     {% endif %}
                 </div>
-
                 <p class="text-muted small mt-2">
                     UUID: <code class="user-select-all">{{ device.unique_id }}</code>
                 </p>
-
                 <hr>
-                
                 <div class="d-flex justify-content-between gap-2">
                     <button class="btn btn-outline-secondary btn-sm flex-fill"
                             data-bs-toggle="modal" 
@@ -36,15 +34,13 @@
                             data-device-name="{{ device.name }}">
                         Rename
                     </button>
-
                     <button class="btn btn-outline-primary btn-sm flex-fill"
                             data-bs-toggle="modal" 
                             data-bs-target="#addGuestModal"
                             data-device-id="{{ device.id }}"
                             data-device-name="{{ device.name }}">
-                        <i class="fa-solid fa-user-plus"></i> Share
+                        Share
                     </button>
-
                     <button class="btn btn-outline-danger btn-sm flex-fill"
                             data-bs-toggle="modal" 
                             data-bs-target="#deleteDeviceModal"
@@ -57,34 +53,61 @@
         </div>
     </div>
     {% else %}
-    <div class="col-12 text-center py-5">
-        <p class="text-muted">You haven't registered any devices yet.</p>
+    <div class="col-12 text-center py-3">
+        <p class="text-muted">You don't own any devices yet.</p>
     </div>
     {% endfor %}
 </div>
 
-<div class="modal fade" id="addGuestModal" tabindex="-1" aria-hidden="true">
+{% if shared_devices %}
+<h5 class="text-muted border-bottom pb-2 mb-3 mt-4">Shared With Me</h5>
+<div class="row">
+    {% for device in shared_devices %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm mb-4 h-100 bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="fw-bold">{{ device.name }}</h5>
+                    <span class="badge bg-info text-dark">Guest Access</span>
+                </div>
+                <p class="small text-muted mt-2">
+                    Owner: <strong>{{ device.owner.username }}</strong>
+                </p>
+                <hr>
+                <div class="d-grid">
+                    <button class="btn btn-outline-danger btn-sm"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#leaveDeviceModal"
+                            data-device-id="{{ device.id }}"
+                            data-device-name="{{ device.name }}">
+                        <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Leave Device
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="modal fade" id="leaveDeviceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Share Access</h5>
+          <h5 class="modal-title">Remove Access?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        
-        <form id="addGuestForm" action="" method="POST">
-            <div class="modal-body">
-              {{ guest_form.hidden_tag() }}
-              
-              <div class="mb-3">
-                  <label class="form-label">Guest Email Address</label>
-                  {{ guest_form.email(class="form-control", placeholder="e.g. spouse@example.com") }}
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              {{ guest_form.submit(class="btn btn-success") }}
-            </div>
-        </form>
+        <div class="modal-body">
+            <p>Are you sure you want to remove <strong id="leave_device_name_display">this device</strong> from your account?</p>
+            <p class="small text-muted">You will need to ask the owner to add you again if you change your mind.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            
+            <form id="leaveDeviceForm" action="" method="POST">
+                {{ add_form.csrf_token }} <button type="submit" class="btn btn-danger">Confirm & Leave</button>
+            </form>
+        </div>
       </div>
     </div>
 </div>
