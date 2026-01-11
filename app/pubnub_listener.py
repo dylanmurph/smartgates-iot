@@ -33,8 +33,7 @@ class DatabaseListener(SubscribeCallback):
 
         with app.app_context():
             try:
-                device_id = int(channel_name)
-                device = Device.query.get(device_id)
+                device = Device.query.filter_by(unique_id=channel_name).first()
 
                 if device:
                     # --- UPDATE DEVICE STATUS BOOLEANS ---
@@ -56,9 +55,9 @@ class DatabaseListener(SubscribeCallback):
 
                     db.session.add(new_log)
                     db.session.commit()
-                    print(f"Logged {final_description} and updated status for Device ID: {device_id}")
+                    print(f"Logged {final_description} and updated status for Device ID: {device.id}")
                 else:
-                    print(f"Device with ID {device_id} not found in database.")
+                    print(f"Device with unique_id {channel_name} not found in database.")
 
             except Exception as e:
                 db.session.rollback()
@@ -71,7 +70,7 @@ def start_listening():
     
     # Grabbing all IDs from the database to add to subscribed channels
     with app.app_context():
-        all_channels = [str(device.id) for device in Device.query.all()]
+        all_channels = [str(device.unique_id) for device in Device.query.all() if device.unique_id]
     
     if all_channels:
         pubnub.subscribe().channels(all_channels).execute()

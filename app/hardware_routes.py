@@ -40,7 +40,12 @@ def tamper_status(device_id):
     return render_template('partials/_tamper_status.html', device=device)
 
 @bp.route('/status/logs/<int:device_id>')
+@login_required
 def log_updates(device_id):
     device = Device.query.get_or_404(device_id)
+
+    if device.owner != current_user:
+        return "Access Denied", 403
+
     logs = device.logs.order_by(EventLog.timestamp.desc()).all()
     return render_template('partials/_log_rows.html', logs=logs)

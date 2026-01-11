@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
 from app.models import EventLog, Device
 
@@ -13,27 +13,32 @@ def index():
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    # 1. Get all devices user can see (Owned + Guest)
-    all_devices = current_user.get_viewable_devices()
+    devices = current_user.get_viewable_devices()
     
-    # 2. Pick the first one as the "Active" device for the navbar/dashboard
-    device = all_devices[0] if all_devices else None
+    if not devices:
+        return render_template('dashboard.html', 
+                               title='Dashboard', 
+                               devices=[], 
+                               device=None, 
+                               is_owner=False)
 
-    # 3. Optional: Get logs only if we have devices
-    recent_logs = []
-    if device:
-        recent_logs = device.logs.order_by(EventLog.timestamp.desc()).limit(10).all()
+    device_id = request.args.get('device_id', type=int)
+    if device_id:
+        device = next((d for d in devices if d.id == device_id), devices[0])
+    else:
+        device = devices[0]
+
+    is_owner = (device.owner == current_user)
 
     return render_template('dashboard.html', 
-                           device=device,        # Defines the active device
-                           devices=all_devices,  # List for dropdowns (future use)
-                           logs=recent_logs, 
-                           title="Dashboard")
+                           title="Dashboard",
+                           device=device,
+                           devices=devices,
+                           is_owner=is_owner) 
 
 @bp.route('/profile')
 @login_required
 def profile():
-    # We pass a device just so the navbar Logs link knows where to point (if any exist)
     all_devices = current_user.get_viewable_devices()
     device = all_devices[0] if all_devices else None
     return render_template('profile.html', title='User Profile', device=device)
@@ -42,11 +47,15 @@ def profile():
 @login_required
 def view_logs(device_id):
     device = Device.query.get_or_404(device_id)
-    
-    if device not in current_user.get_viewable_devices():
-        flash("Access Denied.")
-        return redirect(url_for('main.dashboard'))
 
-    logs = device.logs.order_by(EventLog.timestamp.desc()).all()
-    
-    return render_template('logs.html', device=device, logs=logs)
+    is_owner = (device.owner == current_user)
+
+    if is_owner:
+        logs = device.logs.order_by(EventLog.timestamp.desc()).all()
+    else:
+        logs = []
+
+    return render_template('logs.html', 
+                           device=device, 
+                           logs=logs, 
+                           is_owner=is_owner)
