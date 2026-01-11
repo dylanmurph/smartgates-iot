@@ -1,10 +1,6 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
-from flask_login import current_user, login_user, logout_user, login_required
-from app import db
-from app.models import User, Device, Invitation, UserDeviceAccess, EventLog
-from app.forms import LoginForm, RegistrationForm
-from urllib.parse import urlsplit
-
+from flask import Blueprint, render_template, redirect, url_for, flash
+from flask_login import current_user, login_required
+from app.models import EventLog, Device
 
 bp = Blueprint('main', __name__)
 
@@ -14,68 +10,42 @@ def index():
         return redirect(url_for('main.dashboard'))
     return render_template('index.html', title="Home")
 
-@bp.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('main.login'))
-    return render_template('register.html', title='Register', form=form)
-
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('main.login'))
-        login_user(user, remember=form.remember_me.data)
-        return redirect(url_for('main.dashboard'))
-    return render_template('login.html', title='Sign In', form=form)
-
-@bp.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('main.index'))
-
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    # Get devices the user owns OR has guest access to
-    owned = current_user.owned_devices.all()
-    guest_links = current_user.get_accessible_devices()
-    all_devices = list(set(owned + guest_links)) # Combine and remove duplicates
+    # 1. Get all devices user can see (Owned + Guest)
+    all_devices = current_user.get_viewable_devices()
     
-    # Get the 10 most recent logs for all of the user's devices
-    device_ids = [d.id for d in all_devices]
-    recent_logs = EventLog.query.filter(EventLog.device_id.in_(device_ids))\
-        .order_by(EventLog.timestamp.desc()).limit(10).all()
+    # 2. Pick the first one as the "Active" device for the navbar/dashboard
+    device = all_devices[0] if all_devices else None
+
+    # 3. Optional: Get logs only if we have devices
+    recent_logs = []
+    if device:
+        recent_logs = device.logs.order_by(EventLog.timestamp.desc()).limit(10).all()
 
     return render_template('dashboard.html', 
-                           devices=all_devices, 
+                           device=device,        # Defines the active device
+                           devices=all_devices,  # List for dropdowns (future use)
                            logs=recent_logs, 
                            title="Dashboard")
-
-@bp.route('/devices')
-@login_required
-def manage_devices():
-    # No extra query needed: Jinja uses current_user.owned_devices
-    return render_template('devices.html', title='My Devices')
-
-@bp.route('/invites')
-@login_required
-def invites():
-    # Pass the Invitation model class so Jinja can query it
-    return render_template('invites.html', title='Invitations', Invitation=Invitation)
 
 @bp.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', title='User Profile')
+    # We pass a device just so the navbar Logs link knows where to point (if any exist)
+    all_devices = current_user.get_viewable_devices()
+    device = all_devices[0] if all_devices else None
+    return render_template('profile.html', title='User Profile', device=device)
+
+@bp.route('/logs/<int:device_id>')
+@login_required
+def view_logs(device_id):
+    device = Device.query.get_or_404(device_id)
+    
+    if device not in current_user.get_viewable_devices():
+        flash("You do not have access to this device's logs.")
+        return redirect(url_for('main.dashboard'))
+
+    logs = device.logs.order_by(EventLog.timestamp.desc()).limit(20).all()
+    return render_template('logs.html', device=device, logs=logs)

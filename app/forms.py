@@ -27,3 +27,12 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Email already registered.')
+        
+class AddDeviceForm(FlaskForm):
+    device_name = StringField('Device Name', validators=[DataRequired()])
+    device_id_code = StringField('Unique Device ID (Hardware ID)', validators=[DataRequired()])
+    submit = SubmitField('Add Device')
+
+class InviteUserForm(FlaskForm):
+    email = StringField('User Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Send Invitation')
