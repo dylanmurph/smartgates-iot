@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
+
     <title>{% block title %}SmartGates{% endblock %}</title>
 
     <link
@@ -42,13 +42,15 @@
                 >Dashboard</a
               >
             </li>
+            {% if device %}
             <li class="nav-item">
               <a
-                class="nav-item nav-link"
-                href="{{ url_for('hardware.view_logs', device_id=device.id) }}"
+                class="nav-link"
+                href="{{ url_for('main.view_logs', device_id=device.id) }}"
                 >Logs</a
               >
             </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('devices.list_devices') }}"
                 >Devices</a

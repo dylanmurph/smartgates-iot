@@ -17,12 +17,12 @@ def open_gate(device_id):
     
 @bp.route('/status/gate/<int:device_id>')
 def gate_status(device_id):
-    device = Device.query.get_or_4_04(device_id)
+    device = Device.query.get_or_404(device_id)
     return render_template('partials/_gate_status.html', device=device, now=datetime.now())
 
 @bp.route('/status/tamper/<int:device_id>')
 def tamper_status(device_id):
-    device = Device.query.get_or_4_04(device_id)
+    device = Device.query.get_or_404(device_id)
     return render_template('partials/_tamper_status.html', device=device)
 
 @bp.route('/status/logs/<int:device_id>')

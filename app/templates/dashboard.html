@@ -4,6 +4,7 @@
 <div class="container py-5 text-center">
     <h1 class="mb-4">Gate Control</h1>
 
+    {% if device %}
     <div class="row justify-content-center mb-5">
         <div class="col-md-4">
             {% include 'partials/_gate_status.html' %}
@@ -24,5 +25,8 @@
             <p class="text-muted mt-3">Click to pulse the gate relay for 5 seconds.</p>
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-warning">No active device found</div>
+    {% endif %}
 </div>
 {% endblock %}

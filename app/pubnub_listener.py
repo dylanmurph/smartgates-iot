@@ -53,8 +53,6 @@ class DatabaseListener(SubscribeCallback):
                 print(f"Listener Error: {e}")
 
 def start_listening():
-    # Clear any existing listeners to prevent duplicates
-    pubnub.remove_all_listeners()
     
     # Attach our custom listener
     pubnub.add_listener(DatabaseListener())

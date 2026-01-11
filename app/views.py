@@ -16,25 +16,22 @@ def dashboard():
     owned = current_user.owned_devices.all()
     guest_links = current_user.get_accessible_devices()
     all_devices = list(set(owned + guest_links))
-    
-    device_ids = [d.id for d in all_devices]
-    if device_ids:
-        recent_logs = EventLog.query.filter(EventLog.device_id.in_(device_ids))\
-            .order_by(EventLog.timestamp.desc()).limit(10).all()
-    else:
-        recent_logs = []
+    device = next((d for d in all_devices if d.id == 1), None)
+    if not device and all_devices:
+        device = all_devices[0]
 
     return render_template('dashboard.html', 
+                           device=device,
                            devices=all_devices, 
-                           logs=recent_logs, 
                            title="Dashboard")
-
+    
 @bp.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html', title='User Profile')
 
 @bp.route('/logs/<int:device_id>')
+@login_required
 def view_logs(device_id):
     device = Device.query.get_or_404(device_id)
     logs = device.logs.order_by(EventLog.timestamp.desc()).limit(20).all()
