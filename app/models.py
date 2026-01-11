@@ -3,8 +3,15 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 
+import string
+import secrets
+
 def get_utc_now():
     return datetime.now(timezone.utc)
+
+def generate_device_id():
+    chars = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(4))
 
 # --- USER DEVICES (Association Table) ---
 class UserDeviceAccess(db.Model):
@@ -57,7 +64,7 @@ def load_user(id):
 class Device(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    unique_id = db.Column(db.String(64), unique=True)
+    unique_id = db.Column(db.String(64), unique=True, default=generate_device_id)
     is_online = db.Column(db.Boolean, default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     is_gate_open = db.Column(db.Boolean, default=False)

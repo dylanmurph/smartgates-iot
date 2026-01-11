@@ -16,7 +16,7 @@ pnconfig.publish_key = os.getenv("PUBNUB_PUBLISH_KEY")
 pnconfig.user_id = os.getenv("PUBNUB_USER_ID", "pi_hub")
 pubnub = PubNub(pnconfig)
 
-DEVICE_ID = "1"
+DEVICE_ID = "device_unique_id"
 
 # --- STATE TRACKING ---
 tamper_active = False
