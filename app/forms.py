@@ -30,7 +30,6 @@ class RegistrationForm(FlaskForm):
         
 class AddDeviceForm(FlaskForm):
     device_name = StringField('Device Name', validators=[DataRequired()])
-    device_id_code = StringField('Unique Device ID (Hardware ID)', validators=[DataRequired()])
     submit = SubmitField('Add Device')
 
 class InviteUserForm(FlaskForm):
