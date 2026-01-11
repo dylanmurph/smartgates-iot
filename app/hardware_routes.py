@@ -26,5 +26,5 @@ def tamper_status(device_id):
 @bp.route('/status/logs/<int:device_id>')
 def log_updates(device_id):
     device = Device.query.get_or_404(device_id)
-    logs = device.logs.order_by(EventLog.timestamp.desc()).limit(10).all()
+    logs = device.logs.order_by(EventLog.timestamp.desc()).all()
     return render_template('partials/_log_rows.html', logs=logs)
