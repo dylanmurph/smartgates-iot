@@ -75,6 +75,21 @@ class Device(db.Model):
     logs = db.relationship('EventLog', back_populates='device', lazy='dynamic')
     invites = db.relationship('Invitation', back_populates='device', cascade="all, delete-orphan")
 
+    def __init__(self, **kwargs):
+        super(Device, self).__init__(**kwargs)
+
+        if self.owner:
+            self.add_owner_to_access(self.owner)
+        elif self.owner_id:
+            owner_user = User.query.get(self.owner_id)
+            if owner_user:
+                self.add_owner_to_access(owner_user)
+
+    def add_owner_to_access(self, user_obj):
+        from app.models import UserDeviceAccess
+        new_access = UserDeviceAccess(user=user_obj, device=self)
+        db.session.add(new_access)
+
     def __repr__(self):
         return f'<Device {self.name}>'
 
