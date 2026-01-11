@@ -1,7 +1,7 @@
 import os
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
-from app import Device
+from app.models import Device
 
 pnconfig = PNConfiguration()
 pnconfig.subscribe_key = os.environ.get("PUBNUB_SUBSCRIBE_KEY")
