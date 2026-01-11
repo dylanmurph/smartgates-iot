@@ -2,7 +2,9 @@
 <tr>
     <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
     <td>
-        {% if 'OPEN' in log.event_type %}
+        {% if log.event_type == 'MANUAL_OPEN' %}
+            <span class="badge bg-primary">MANUAL</span>
+        {% elif 'OPEN' in log.event_type %}
             <span class="badge bg-success">OPEN</span>
         {% elif 'CLOSE' in log.event_type %}
             <span class="badge bg-secondary">CLOSED</span>

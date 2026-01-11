@@ -15,6 +15,10 @@ class DatabaseListener(SubscribeCallback):
 
         data = message.message
         channel_name = message.channel
+        
+        # ignoring OPEN_GATE because we handle this with /open-gate/ instead for user tracking
+        if data == "OPEN_GATE":
+            return 
 
         description_map = {
             "MOTION_DETECTED":     "Motion detected at gate - Panel open",
