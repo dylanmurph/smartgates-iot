@@ -10,8 +10,12 @@ bp = Blueprint("devices", __name__)
 @bp.route("/devices")
 @login_required
 def list_devices():
-    all_devices = current_user.get_viewable_devices()
-    device = all_devices[0] if all_devices else None
+    owned_devices = current_user.owned_devices.all()
+    
+    all_accessible = current_user.get_accessible_devices()
+    shared_devices = [d for d in all_accessible if d.owner_id != current_user.id]
+    device = owned_devices[0] if owned_devices else (shared_devices[0] if shared_devices else None)
+    
     add_form = AddDeviceForm()
     edit_form = EditDeviceForm()
     guest_form = AddGuestForm()
@@ -20,7 +24,8 @@ def list_devices():
         "devices.html",
         title="My Devices",
         device=device,
-        devices=all_devices,
+        owned_devices=owned_devices,   
+        shared_devices=shared_devices, 
         add_form=add_form,
         edit_form=edit_form,
         guest_form=guest_form,
