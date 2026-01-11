@@ -27,9 +27,6 @@ def create_app(config_class=Config):
     from app.device_routes import bp as device_bp
     app.register_blueprint(device_bp)
 
-    from app.invite_routes import bp as invite_bp
-    app.register_blueprint(invite_bp)
-
     with app.app_context():
         db.create_all()
 

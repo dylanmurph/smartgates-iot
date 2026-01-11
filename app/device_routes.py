@@ -59,18 +59,13 @@ def edit_device(device_id):
 def delete_device(device_id):
     device = Device.query.get_or_404(device_id)
     
-    # Security: Ensure only the owner can delete
     if device.owner != current_user:
         flash('You do not have permission to delete this device.', 'danger')
         return redirect(url_for('devices.list_devices'))
 
     try:
-        # 1. Manually delete logs (Because your model relationship doesn't have cascade="all,delete")
         EventLog.query.filter_by(device_id=device.id).delete()
         
-        # 2. Delete the device
-        # Note: AccessLinks and Invitations WILL delete automatically because 
-        # you defined cascade="all, delete-orphan" in models.py for them.
         db.session.delete(device)
         db.session.commit()
         

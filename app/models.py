@@ -36,7 +36,6 @@ class User(UserMixin, db.Model):
     
     owned_devices = db.relationship('Device', back_populates='owner', lazy='dynamic')
     access_links = db.relationship('UserDeviceAccess', back_populates='user', lazy='dynamic')
-    sent_invites = db.relationship('Invitation', back_populates='inviter', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -73,7 +72,6 @@ class Device(db.Model):
     owner = db.relationship('User', back_populates='owned_devices')
     access_links = db.relationship('UserDeviceAccess', back_populates='device', cascade="all, delete-orphan")
     logs = db.relationship('EventLog', back_populates='device', lazy='dynamic')
-    invites = db.relationship('Invitation', back_populates='device', cascade="all, delete-orphan")
 
     def __init__(self, **kwargs):
         super(Device, self).__init__(**kwargs)
@@ -105,20 +103,3 @@ class EventLog(db.Model):
 
     def __repr__(self):
         return f'<Log {self.event_type}>'
-    
-# --- INVITATIONS ---
-class Invitation(db.Model):
-    __tablename__ = 'invitation'
-    id = db.Column(db.Integer, primary_key=True)
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
-    inviter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    invitee_email = db.Column(db.String(120))
-    token = db.Column(db.String(64), unique=True)
-    status = db.Column(db.String(20), default='pending') 
-    created_at = db.Column(db.DateTime, default=get_utc_now)
-
-    device = db.relationship('Device', back_populates='invites')
-    inviter = db.relationship('User', back_populates='sent_invites')
-
-    def __repr__(self):
-        return f'<Invitation {self.invitee_email} for {self.device_id}>'
