@@ -8,17 +8,6 @@
     </button>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
 <div class="row">
     {% for device in current_user.owned_devices %}
     <div class="col-md-6 col-lg-4">
@@ -46,9 +35,13 @@
                         Rename
                     </button>
 
-                    <form action="{{ url_for('devices.delete_device', device_id=device.id) }}" method="POST" class="d-inline">
-                        <button class="btn btn-outline-danger btn-sm" onclick="return confirm('WARNING: This will permanently delete the device and ALL its history logs. Are you sure?')">Remove</button>
-                    </form>
+                    <button class="btn btn-outline-danger btn-sm"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteDeviceModal"
+                            data-device-id="{{ device.id }}"
+                            data-device-name="{{ device.name }}">
+                        Remove
+                    </button>
                 </div>
             </div>
         </div>
@@ -94,11 +87,9 @@
           <h5 class="modal-title">Rename Device</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        
         <form id="editDeviceForm" action="" method="POST">
             <div class="modal-body">
               {{ edit_form.hidden_tag() }}
-              
               <div class="mb-3">
                   <label class="form-label">New Name</label>
                   {{ edit_form.device_name(class="form-control", id="edit_device_name") }}
@@ -109,6 +100,34 @@
               {{ edit_form.submit(class="btn btn-primary") }}
             </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation me-2"></i>Delete Device?</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+            <p>Are you sure you want to permanently delete <strong id="delete_device_name_display">this device</strong>?</p>
+            <div class="alert alert-warning small mb-0">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>
+                This action cannot be undone. All information and activity logs associated with this device will be permanently erased.
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            
+            <form id="deleteDeviceForm" action="" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-danger">Yes, Delete It</button>
+            </form>
+        </div>
       </div>
     </div>
   </div>
