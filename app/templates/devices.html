@@ -22,10 +22,13 @@
                         <span class="badge bg-secondary">Offline</span>
                     {% endif %}
                 </div>
+
                 <p class="text-muted small mt-2">
                     UUID: <code class="user-select-all">{{ device.unique_id }}</code>
                 </p>
+
                 <hr>
+                
                 <div class="d-flex justify-content-between gap-2">
                     <button class="btn btn-outline-secondary btn-sm flex-fill"
                             data-bs-toggle="modal" 
@@ -34,6 +37,7 @@
                             data-device-name="{{ device.name }}">
                         Rename
                     </button>
+
                     <button class="btn btn-outline-primary btn-sm flex-fill"
                             data-bs-toggle="modal" 
                             data-bs-target="#addGuestModal"
@@ -41,6 +45,7 @@
                             data-device-name="{{ device.name }}">
                         Share
                     </button>
+
                     <button class="btn btn-outline-danger btn-sm flex-fill"
                             data-bs-toggle="modal" 
                             data-bs-target="#deleteDeviceModal"
@@ -90,6 +95,109 @@
 </div>
 {% endif %}
 
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Register New Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('devices.add_device') }}" method="POST">
+          <div class="modal-body">
+            {{ add_form.hidden_tag() }}
+            <div class="mb-3">
+                <label class="form-label">Friendly Name</label>
+                {{ add_form.device_name(class="form-control", placeholder="e.g. Front Gate") }}
+            </div>
+            <div class="alert alert-info small">
+                The system will generate a unique ID for you.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            {{ add_form.submit(class="btn btn-primary") }}
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editDeviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Rename Device</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="editDeviceForm" action="" method="POST">
+            <div class="modal-body">
+              {{ edit_form.hidden_tag() }}
+              <div class="mb-3">
+                  <label class="form-label">New Name</label>
+                  {{ edit_form.device_name(class="form-control", id="edit_device_name") }}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              {{ edit_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addGuestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Share Access</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <form id="addGuestForm" action="" method="POST">
+            <div class="modal-body">
+              {{ guest_form.hidden_tag() }}
+              <div class="mb-3">
+                  <label class="form-label">Guest Email Address</label>
+                  {{ guest_form.email(class="form-control", placeholder="e.g. spouse@example.com") }}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              {{ guest_form.submit(class="btn btn-success") }}
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation me-2"></i>Delete Device?</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+            <p>Are you sure you want to permanently delete <strong id="delete_device_name_display">this device</strong>?</p>
+            <div class="alert alert-warning small mb-0">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>
+                This action cannot be undone. All activity logs and guest invitations associated with this device will be erased.
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <form id="deleteDeviceForm" action="" method="POST">
+                {{ add_form.csrf_token }} 
+                <button type="submit" class="btn btn-danger">Yes, Delete It</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
 <div class="modal fade" id="leaveDeviceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -103,7 +211,6 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            
             <form id="leaveDeviceForm" action="" method="POST">
                 {{ add_form.csrf_token }} <button type="submit" class="btn btn-danger">Confirm & Leave</button>
             </form>
