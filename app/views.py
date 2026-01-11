@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user, login_required
 from app.models import EventLog, Device
+from datetime import datetime
 
 bp = Blueprint('main', __name__)
 
@@ -16,12 +17,12 @@ def dashboard():
     owned = current_user.owned_devices.all()
     guest_links = current_user.get_accessible_devices()
     all_devices = list(set(owned + guest_links))
-    device = next((d for d in all_devices if d.id == 1), None)
-    if not device and all_devices:
-        device = all_devices[0]
+    
+    device = Device.query.get(1) 
 
     return render_template('dashboard.html', 
                            device=device,
+                           now=datetime.now(),
                            devices=all_devices, 
                            title="Dashboard")
     
