@@ -45,4 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+const guestModal = document.getElementById('addGuestModal');
+    if (guestModal) {
+        guestModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            const deviceId = button.getAttribute('data-device-id');
+            
+            const form = document.getElementById('addGuestForm');
+            if (form) form.action = `/devices/${deviceId}/add-guest`;
+        });
+    }
+
 });

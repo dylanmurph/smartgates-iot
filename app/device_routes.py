@@ -1,77 +1,63 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
-from app.models import Device, EventLog
-from app.forms import AddDeviceForm, EditDeviceForm
+from app.models import Device, User, UserDeviceAccess
+from app.forms import AddDeviceForm, EditDeviceForm, AddGuestForm
 
-bp = Blueprint('devices', __name__)
+bp = Blueprint("devices", __name__)
 
-@bp.route('/devices')
+
+@bp.route("/devices")
 @login_required
 def list_devices():
     all_devices = current_user.get_viewable_devices()
     device = all_devices[0] if all_devices else None
     add_form = AddDeviceForm()
     edit_form = EditDeviceForm()
-    return render_template('devices.html', title='My Devices', device=device, add_form=add_form, edit_form=edit_form)
+    guest_form = AddGuestForm()
 
-@bp.route('/devices/add', methods=['POST'])
+    return render_template(
+        "devices.html",
+        title="My Devices",
+        device=device,
+        devices=all_devices,
+        add_form=add_form,
+        edit_form=edit_form,
+        guest_form=guest_form,
+    )
+
+
+@bp.route("/devices/<int:device_id>/add-guest", methods=["POST"])
 @login_required
-def add_device():
-    form = AddDeviceForm()
-    
-    if form.validate_on_submit():
-        new_device = Device(
-            name=form.device_name.data,
-            owner=current_user
-        )
-
-        db.session.add(new_device)
-        db.session.commit()
-        
-        flash(f'Device Added! ID: {new_device.unique_id}', 'success')
-    else:
-        flash('Error: Device name is required.', 'danger')
-        
-    return redirect(url_for('devices.list_devices'))
-
-@bp.route('/devices/<int:device_id>/edit', methods=['POST'])
-@login_required
-def edit_device(device_id):
+def add_guest(device_id):
     device = Device.query.get_or_404(device_id)
-    
-    if device.owner != current_user:
-        flash('You do not have permission to edit this device.', 'danger')
-        return redirect(url_for('devices.list_devices'))
+    form = AddGuestForm()
 
-    form = EditDeviceForm()
+    if device.owner != current_user:
+        flash("Only the device owner can add guests.", "danger")
+        return redirect(url_for("devices.list_devices"))
+
     if form.validate_on_submit():
-        device.name = form.device_name.data
-        db.session.commit()
-        flash('Device renamed successfully.', 'success')
+        email = form.email.data.lower().strip()
+        target_user = User.query.filter_by(email=email).first()
+
+        if target_user:
+            existing = UserDeviceAccess.query.filter_by(user_id=target_user.id, device_id=device.id).first()
+            is_owner = target_user == current_user
+
+            if not existing and not is_owner:
+                new_access = UserDeviceAccess(user=target_user, device=device)
+                db.session.add(new_access)
+                db.session.commit()
+                print(f"Access granted to {email}")
+            else:
+                print(f"User {email} already has access or is owner.")
+        else:
+            print(f"User {email} NOT FOUND in database.")
+
+        flash(f'If an account exists for "{email}", access has been granted.', "info")
+
     else:
-        flash('Error: Invalid name provided.', 'danger')
-        
-    return redirect(url_for('devices.list_devices'))
+        flash("Invalid email address format.", "danger")
 
-@bp.route('/devices/<int:device_id>/delete', methods=['POST'])
-@login_required
-def delete_device(device_id):
-    device = Device.query.get_or_404(device_id)
-    
-    if device.owner != current_user:
-        flash('You do not have permission to delete this device.', 'danger')
-        return redirect(url_for('devices.list_devices'))
-
-    try:
-        EventLog.query.filter_by(device_id=device.id).delete()
-        
-        db.session.delete(device)
-        db.session.commit()
-        
-        flash('Device and all associated logs deleted.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting device: {str(e)}', 'danger')
-
-    return redirect(url_for('devices.list_devices'))
+    return redirect(url_for("devices.list_devices"))

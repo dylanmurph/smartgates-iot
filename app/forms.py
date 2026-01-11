@@ -35,3 +35,7 @@ class AddDeviceForm(FlaskForm):
 class EditDeviceForm(FlaskForm):
     device_name = StringField('New Device Name', validators=[DataRequired()])
     submit = SubmitField('Save Changes')
+    
+class AddGuestForm(FlaskForm):
+    email = StringField('Guest Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Grant Access')
