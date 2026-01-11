@@ -9,29 +9,46 @@
         </a>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col" style="width: 25%">Timestamp</th>
-                            <th scope="col" style="width: 15%">Event</th>
-                            <th scope="col">Description</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody id="log-table-body"
-                           hx-get="{{ url_for('hardware.log_updates', device_id=device.id) }}"
-                           hx-trigger="every 2s"
-                           hx-swap="innerHTML">
+    {% if is_owner %}
+    
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" style="width: 25%">Timestamp</th>
+                                <th scope="col" style="width: 15%">Event</th>
+                                <th scope="col">Description</th>
+                            </tr>
+                        </thead>
                         
-                        {% include 'partials/_log_rows.html' %}
-                        
-                    </tbody>
-                </table>
+                        <tbody id="log-table-body"
+                               hx-get="{{ url_for('hardware.log_updates', device_id=device.id) }}"
+                               hx-trigger="every 2s"
+                               hx-swap="innerHTML">
+                            
+                            {% include 'partials/_log_rows.html' %}
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+    {% else %}
+
+        <div class="alert alert-warning shadow-sm text-center py-5">
+            <div class="mb-3" style="font-size: 2rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h4 class="alert-heading fw-bold">No Devices</h4>
+            <p class="mb-0">
+                You don't own any devices, you are unable to view shared device logs.
+            </p>
         </div>
+
+    {% endif %}
+
 </div>
 {% endblock %}
