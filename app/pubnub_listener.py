@@ -69,11 +69,16 @@ def start_listening():
     # Attach our custom listener
     pubnub.add_listener(DatabaseListener())
     
-    # Subscribe to your channel (Device ID "1")
-    pubnub.subscribe().channels("1").execute()
+    # Grabbing all IDs from the database to add to subscribed channels
+    with app.app_context():
+        all_channels = [str(device.id) for device in Device.query.all()]
     
-    print("--- PUBNUB LISTENER ONLINE ---")
-    print("Watching for Hardware Events...")
+    if all_channels:
+        pubnub.subscribe().channels(all_channels).execute()
+        print("--- PUBNUB LISTENER ONLINE ---")
+        print(f"Watching for Hardware Events on channels: {', '.join(all_channels)}")
+    else:
+        print("Error: No devices found in database-")
 
     # Keep the script alive
     try:
