@@ -6,7 +6,7 @@ from app import db, login
 def get_utc_now():
     return datetime.now(timezone.utc)
 
-# --- USER DEVICES ---
+# --- USER DEVICES (Association Table) ---
 class UserDeviceAccess(db.Model):
     __tablename__ = 'user_device_access'
     
@@ -25,22 +25,33 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256))
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=get_utc_now)
-
-    access_links = db.relationship('UserDeviceAccess', back_populates='user', cascade="all, delete-orphan")
+    
+    
     owned_devices = db.relationship('Device', back_populates='owner', lazy='dynamic')
-    invites_sent = db.relationship('Invitation', back_populates='inviter')
+    access_links = db.relationship('UserDeviceAccess', back_populates='user', lazy='dynamic')
+    sent_invites = db.relationship('Invitation', back_populates='inviter', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-        
+    
     def get_accessible_devices(self):
         return [link.device for link in self.access_links]
 
+    def get_viewable_devices(self):
+        """Returns ALL devices this user can see (Owned + Guest Access)."""
+        owned = self.owned_devices.all()
+        guests = [link.device for link in self.access_links]
+        return list(set(owned + guests))
+
     def __repr__(self):
         return f'<User {self.username}>'
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 # --- DEVICES ---
 class Device(db.Model):
@@ -79,13 +90,13 @@ class Invitation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
     inviter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    invitee_email = db.Column(db.String(120), index=True)
-    status = db.Column(db.String(20), default='pending')
-    sent_at = db.Column(db.DateTime, default=get_utc_now)
+    invitee_email = db.Column(db.String(120))
+    token = db.Column(db.String(64), unique=True)
+    status = db.Column(db.String(20), default='pending') 
+    created_at = db.Column(db.DateTime, default=get_utc_now)
 
     device = db.relationship('Device', back_populates='invites')
-    inviter = db.relationship('User', back_populates='invites_sent')
-    
-@login.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+    inviter = db.relationship('User', back_populates='sent_invites')
+
+    def __repr__(self):
+        return f'<Invitation {self.invitee_email} for {self.device_id}>'

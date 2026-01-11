@@ -8,8 +8,9 @@ bp = Blueprint('invites', __name__)
 @bp.route('/invites')
 @login_required
 def manage_invites():
-    return render_template('invites.html', title='Invitations', Invitation=Invitation)
-
+    all_devices = current_user.get_viewable_devices()
+    device = all_devices[0] if all_devices else None
+    return render_template('invites.html', title='Invitations', Invitation=Invitation, device=device)
 
 @bp.route('/devices/<int:device_id>/invite', methods=['GET', 'POST'])
 @login_required
