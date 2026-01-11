@@ -8,8 +8,9 @@ bp = Blueprint('devices', __name__)
 @bp.route('/devices')
 @login_required
 def list_devices():
-    return render_template('devices.html', title='My Devices')
-
+    all_devices = current_user.get_viewable_devices()
+    device = all_devices[0] if all_devices else None
+    return render_template('devices.html', title='My Devices', device=device)
 
 @bp.route('/devices/add', methods=['GET', 'POST'])
 @login_required
